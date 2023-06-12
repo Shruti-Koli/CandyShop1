@@ -1,0 +1,12 @@
+input {
+    margin: 5px 10px;
+}
+label{
+    margin-left: 10px;
+    margin-bottom: 2px;
+}
+button{
+    margin-left: 10px;
+    margin-bottom: 5px;
+    cursor: pointer;
+}

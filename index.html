@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <form onsubmit = "afterSubmiting(event)" autocomplete="on">
+        <label for="cname">Candy Name:</label><br>
+        <input id="cname" name="ncname" autocomplete="on"><br>
+        <label for="cdescription">Description:</label><br>
+        <input id="cdescription" name="ncdescription" autocomplete="on"><br>
+        <label for="price">Price:</label><br>
+        <input id="price" type="number" name="nprice" autocomplete="on"><br>
+        <label for="quantity">Quantity:</label><br>
+        <input id="quantity" type="number" name="nquantity" autocomplete="on"><br><br>
+        <button type="submit">Submit</button>
+    </form>
+    <ul id="dispBlock" style="border: 1px solid black;"></ul>
+      
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <script>
+        var uRL = "https://crudcrud.com/Dashboard/a09b6c41b6fc479c93b328d7cfe582b8/candyData";
+
+
+        //load all the existing data on screen
+        window.addEventListener("DOMContentLoaded",async ()=>{
+            try {
+                let res = await axios.get(uRL);
+                //console.log(res.data);
+                for(let i=0;i<res.data.length;i++){
+                    showDataOnScreen(res.data[i]);
+                }
+            }catch(err){
+                console.log(err);
+            }
+        })
+
+        //Function to show data on screen 
+        function showDataOnScreen(cObj){
+            const dispBlock = document.getElementById("dispBlock");
+            dispBlock.innerHTML = dispBlock.innerHTML + `<li id="${cObj._id}">Candy: ${cObj.cname} --- Description: ${cObj.cdescription} --- Price: ${cObj.price} Rs ----Quantity: ${cObj.quantity}<button id="buy1" onclick="cut1('${cObj._id}')">Buy1</button><button id="buy2" onclick="cut2('${cObj._id}')">Buy2</button><button id="buy3" onclick="cut3('${cObj._id}')">Buy3</button></li>` 
+        }
+
+        //Function after submiting form
+        function afterSubmiting(event){
+            event.preventDefault();
+            let myobj = {
+                cname: event.target.ncname.value,
+                cdescription: event.target.ncdescription.value,
+                price: event.target.nprice.value,
+                quantity: event.target.nquantity.value
+            };
+            addData(myobj);
+            event.target.ncname.value="";
+            event.target.ncdescription.value="";
+            event.target.nprice.value="";
+            event.target.nquantity.value="";
+        }
+        //function to add data
+        async function addData(cdata){
+            try{
+                let op = await axios.post(uRL,cdata);
+                showDataOnScreen(op.data);
+            }catch(err){
+                console.log(err);
+            }
+        }
+
+        //function for buy1 button
+         async function cut1(candyId){
+            try {
+                let res = await axios.get(`${uRL}/${candyId}`);
+                //console.log(res.data);
+                
+                let quantity = parseInt(res.data.quantity);
+
+                if (quantity > 1) {
+                    let newQuantity = quantity - 1;
+                    let obj1 = {
+                        cname: res.data.cname,
+                        cdescription: res.data.cdescription,
+                        price: res.data.price,
+                        quantity: `${newQuantity}`};
+
+                    let op = await axios.put(`${uRL}/${candyId}`,obj1);
+                    updateScreen(candyId);
+
+                } else {
+                    deleteItem(candyId);
+                }
+                } catch (error) {
+                    console.error("Error occurred:", error);
+                }
+        }
+
+        //function for buy2 button
+        async function cut2(candyId){
+            try {
+                let res = await axios.get(`${uRL}/${candyId}`);
+                //console.log(res.data);
+                
+                let quantity = parseInt(res.data.quantity);
+
+                if (quantity > 2) {
+                    let newQuantity = quantity - 2;
+                    let obj1 = {
+                        cname: res.data.cname,
+                        cdescription: res.data.cdescription,
+                        price: res.data.price,
+                        quantity: `${newQuantity}`};
+
+                    let op = await axios.put(`${uRL}/${candyId}`,obj1);
+                    updateScreen(candyId);
+
+                } else if(quantity==2) {
+                    deleteItem(candyId);
+                }else{
+                    alert("not enough candies")
+                }
+            } catch (error) {
+                console.error("Error occurred:", error);
+            }
+        }
+
+        //function for buy3 button
+        async function cut3(candyId){
+            try {
+                let res = await axios.get(`${uRL}/${candyId}`);
+                //console.log(res.data);
+                
+                let quantity = parseInt(res.data.quantity);
+
+                if (quantity > 3) {
+                    let newQuantity = quantity - 3;
+                    let obj1 = {
+                        cname: res.data.cname,
+                        cdescription: res.data.cdescription,
+                        price: res.data.price,
+                        quantity: `${newQuantity}`};
+
+                    let op = await axios.put(`${uRL}/${candyId}`,obj1);
+                    updateScreen(candyId);
+
+                } else if(quantity==3) {
+                    deleteItem(candyId);
+                }else{
+                    alert("not enough candies")
+                }
+                } catch (error) {
+                    console.error("Error occurred:", error);
+                }
+        }
+
+        //Function to update screen
+        async function updateScreen(candyId){
+            const dispBlock = document.getElementById("dispBlock");
+            const todel = document.getElementById(candyId);
+            dispBlock.removeChild(todel);
+            let res = await axios.get(`${uRL}/${candyId}`);
+            showDataOnScreen(res.data);
+        }
+
+        //Function to delete Item
+        async function deleteItem(candyId){
+            console.log(`${uRL}/${candyId}`);
+            try{
+                await axios.delete(`${uRL}/${candyId}`);
+                deleteItemfromScreeen(candyId);
+            }catch(err){
+                console.log(err);
+            }
+        }
+
+        //Function to delete Item from screem
+        function deleteItemfromScreeen(candyId){
+            const dispBlock = document.getElementById("dispBlock");
+            const todel = document.getElementById(candyId);
+            dispBlock.removeChild(todel);
+        }
+
+    </script>
+
+
+
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.3/dist/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+</body>
+</html>
